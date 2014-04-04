@@ -139,12 +139,9 @@ public class BankManagerBean implements BankManager {
     }
 
     @Override
-    public boolean checkIfCustomerExists(CustomerIdentifier customer) {
-      if(em.find(Person.class, customer.getCpr())==null)
-      {
-          return false;
-      }
-      return true;
+    public boolean checkCustomer(CustomerIdentifier customer) {
+      Person person = em.find(Person.class, customer.getCpr());
+      return (person == null); //der svarer til if(person==null) return true; else return false;
     }
 
 }
