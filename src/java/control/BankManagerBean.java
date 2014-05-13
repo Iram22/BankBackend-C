@@ -25,6 +25,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import static control.Assembler.*;
+import dk.cphbusiness.bank.contract.eto.InvalidPostalCodeException;
 import entity.Account;
 import entity.CheckingAccount;
 import entity.Postal;
@@ -88,7 +89,7 @@ public class BankManagerBean implements BankManager {
     }
 
     @Override
-    public CustomerDetail saveCustomer(CustomerDetail customer) {
+    public CustomerDetail saveCustomer(CustomerDetail customer) throws InvalidPostalCodeException{
         Postal code = em.find(Postal.class, customer.getPostalCode());
         if (code == null) {
             code = new Postal(customer.getPostalCode(), customer.getPostalDistrict());
@@ -102,6 +103,10 @@ public class BankManagerBean implements BankManager {
                 customer.getPhone(),
                 customer.getEmail(),
                 code);
+        if(customer.getPostalCode().equals("2800"))
+        {
+            throw new InvalidPostalCodeException("2800");
+        }
         if (em.find(Person.class, customer.getCpr()) == null) {
 
             em.persist(person);

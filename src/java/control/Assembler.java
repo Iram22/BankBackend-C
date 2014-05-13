@@ -49,6 +49,7 @@ public class Assembler {
     Collection<AccountSummary> summaries = new ArrayList<>();
     if (accounts == null) return summaries;
     for (Account account : accounts) summaries.add(createAccountSummary(account));
+   
     return summaries;
     }
   
