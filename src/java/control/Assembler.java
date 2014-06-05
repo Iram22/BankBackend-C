@@ -18,7 +18,6 @@ import java.util.List;
 public class Assembler {
 
     public static CustomerSummary createCustomerSummary(Person customer) {
-        
         return new CustomerSummary(
                 customer.getCpr(),
                 customer.getFirstName() + " " + customer.getLastName(),
