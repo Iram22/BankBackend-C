@@ -88,7 +88,7 @@ public class BankManagerBean implements BankManager {
     }
 
     @Override
-    public CustomerDetail saveCustomer(CustomerDetail customer){
+    public CustomerDetail saveCustomer(CustomerDetail customer) {
         Postal code = em.find(Postal.class, customer.getPostalCode());
         if (code == null) {
             code = new Postal(customer.getPostalCode(), customer.getPostalDistrict());
@@ -116,6 +116,18 @@ public class BankManagerBean implements BankManager {
     public AccountDetail transferAmount(BigDecimal amount, AccountIdentifier source, AccountIdentifier target) throws NoSuchAccountException, TransferNotAcceptedException, InsufficientFundsException {
         Account sourceAccount = em.find(Account.class, source.getNumber());
         Account targetAccount = em.find(Account.class, target.getNumber());
+        Double transferAmount = Double.parseDouble("" + amount);
+        if (targetAccount == null) {
+            throw new NoSuchAccountException(target.getNumber(), "There is no such target account");
+        }
+        if (sourceAccount != null) {
+            if (transferAmount > sourceAccount.getBalance()) {
+                throw new InsufficientFundsException("The funds are insufficient");
+            }
+
+            sourceAccount.setBalance(sourceAccount.getBalance()-transferAmount);
+        }
+        targetAccount.setBalance(targetAccount.getBalance()+transferAmount);
         Transfer transfer = new Transfer(Double.parseDouble("" + amount), sourceAccount, targetAccount);
         em.persist(transfer);
         em.flush();
@@ -124,35 +136,34 @@ public class BankManagerBean implements BankManager {
 
     @Override
     public AccountDetail createAccount(CustomerIdentifier customer, AccountDetail account) throws NoSuchCustomerException, CustomerBannedException {
-        
+
         Account customerAccount;
         Person person = em.find(Person.class, customer.getCpr());
-        if(person == null) throw new NoSuchCustomerException(customer);
-        customerAccount  = new CheckingAccount(account.getNumber(),
-                 Double.parseDouble("" + account.getInterest()), person);
+        if (person == null) {
+            throw new NoSuchCustomerException(customer);
+        }
+        customerAccount = new CheckingAccount(account.getNumber(),
+                Double.parseDouble("" + account.getInterest()), person);
         return createAccountDetail(customerAccount);
     }
-    
+
     @Override
     public String sayHello(String name) {
-        return "Hello " + name + " from bank manager bean. Gruppe C";
+        return "Hello " + name + " from bank manager bean. Gruppe C" + "\n This is a test to see if everything works.";
     }
 
     @Override
     public boolean checkCustomer(CustomerIdentifier customer) {
-      Person person = em.find(Person.class, customer.getCpr());
-      return (person == null); //der svarer til if(person==null) return true; else return false;
+        Person person = em.find(Person.class, customer.getCpr());
+        return (person == null);
     }
 
     @Override
     public int getCustomerCount() {
-        
+        //Instead of this, Create a query to find the count of persons
         Query query = em.createNamedQuery("Person.findAll");
-        
         Collection<Person> customers = query.getResultList();
-       return customers.size();
-        
-     
+        return customers.size();
     }
 
 }
